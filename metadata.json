@@ -1,0 +1,6 @@
+{
+  "name": "XARAGameSpace",
+  "description": "Advanced futuristic Android Gaming Booster, hardware telemetry HUD, Shizuku compiler, and game space manager by XARA Technology.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

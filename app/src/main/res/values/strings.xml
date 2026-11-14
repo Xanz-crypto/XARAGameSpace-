@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">XARAGameSpace</string>
+    <string name="brand_name">XARA Technology</string>
+    <string name="tagline">UNLEASH YOUR GAMING POWER</string>
+    <string name="notification_channel_session">XARA Gaming Session &amp; HUD</string>
+    <string name="notification_channel_session_desc">Displays active gaming session timer and floating game panel controls.</string>
+</resources>
