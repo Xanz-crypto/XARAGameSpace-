@@ -247,7 +247,7 @@ fun GamesManagerScreen(
                     FilterChip(
                         selected = filter == option,
                         onClick = { filter = option },
-                        label = { Text(option.label, style = MaterialTheme.typography.labelMedium) },
+                        label = { Text(option.label, style = MaterialTheme.typography.labelSmall) },
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = xaraColors.accentPrimary.copy(alpha = 0.2f),
                             selectedLabelColor = xaraColors.accentPrimary,

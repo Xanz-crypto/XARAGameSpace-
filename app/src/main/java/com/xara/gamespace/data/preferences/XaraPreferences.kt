@@ -26,6 +26,9 @@ class XaraPreferences(private val context: Context) {
         val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
         val AUTO_CLEANUP_ON_BOOST = booleanPreferencesKey("auto_cleanup_on_boost")
         val ACTIVE_GAME_DETECTION = booleanPreferencesKey("active_game_detection")
+        val AUTO_FLOATING_ON_GAME = booleanPreferencesKey("auto_floating_on_game")
+        val FLOATING_SIDE_RIGHT = booleanPreferencesKey("floating_side_right")
+        val FLOATING_MINI_HUD = booleanPreferencesKey("floating_mini_hud")
         val FLOATING_TRANSPARENT = booleanPreferencesKey("floating_transparent")
         val FLOATING_POSITION = stringPreferencesKey("floating_position")
         val GRAPHICS_DRIVER = stringPreferencesKey("graphics_driver")
@@ -44,10 +47,13 @@ class XaraPreferences(private val context: Context) {
             notificationsEnabled = prefs[Keys.NOTIFICATIONS_ENABLED] ?: true,
             autoCleanupOnBoost = prefs[Keys.AUTO_CLEANUP_ON_BOOST] ?: true,
             activeGameDetectionEnabled = prefs[Keys.ACTIVE_GAME_DETECTION] ?: true,
+            autoFloatingPanelOnGameLaunch = prefs[Keys.AUTO_FLOATING_ON_GAME] ?: true,
+            floatingSideRight = prefs[Keys.FLOATING_SIDE_RIGHT] ?: true,
+            floatingMiniHudEnabled = prefs[Keys.FLOATING_MINI_HUD] ?: true,
             floatingTransparentMode = prefs[Keys.FLOATING_TRANSPARENT] ?: false,
             floatingPositionPreset = prefs[Keys.FLOATING_POSITION]?.let {
                 runCatching { FloatingPositionPreset.valueOf(it) }.getOrNull()
-            } ?: FloatingPositionPreset.TOP_LEFT,
+            } ?: FloatingPositionPreset.TOP_RIGHT,
             selectedGraphicsDriver = prefs[Keys.GRAPHICS_DRIVER]?.let {
                 runCatching { GraphicsDriverOption.valueOf(it) }.getOrNull()
             } ?: GraphicsDriverOption.DEFAULT,
@@ -84,6 +90,18 @@ class XaraPreferences(private val context: Context) {
 
     suspend fun setActiveGameDetection(enabled: Boolean) {
         context.xaraDataStore.edit { it[Keys.ACTIVE_GAME_DETECTION] = enabled }
+    }
+
+    suspend fun setAutoFloatingOnGameLaunch(enabled: Boolean) {
+        context.xaraDataStore.edit { it[Keys.AUTO_FLOATING_ON_GAME] = enabled }
+    }
+
+    suspend fun setFloatingSideRight(rightSide: Boolean) {
+        context.xaraDataStore.edit { it[Keys.FLOATING_SIDE_RIGHT] = rightSide }
+    }
+
+    suspend fun setFloatingMiniHudEnabled(enabled: Boolean) {
+        context.xaraDataStore.edit { it[Keys.FLOATING_MINI_HUD] = enabled }
     }
 
     suspend fun setFloatingTransparentMode(transparent: Boolean) {

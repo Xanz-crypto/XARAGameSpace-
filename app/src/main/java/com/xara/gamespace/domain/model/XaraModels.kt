@@ -193,8 +193,11 @@ data class XaraUserSettings(
     val notificationsEnabled: Boolean = true,
     val autoCleanupOnBoost: Boolean = true,
     val activeGameDetectionEnabled: Boolean = true,
+    val autoFloatingPanelOnGameLaunch: Boolean = true,
+    val floatingSideRight: Boolean = true,
+    val floatingMiniHudEnabled: Boolean = true,
     val floatingTransparentMode: Boolean = false,
-    val floatingPositionPreset: FloatingPositionPreset = FloatingPositionPreset.TOP_LEFT,
+    val floatingPositionPreset: FloatingPositionPreset = FloatingPositionPreset.TOP_RIGHT,
     val selectedGraphicsDriver: GraphicsDriverOption = GraphicsDriverOption.DEFAULT,
     val selectedGraphicsProfile: String = "Competitive",
     val selectedTextureMode: TextureOptMode = TextureOptMode.SHARP_NATIVE

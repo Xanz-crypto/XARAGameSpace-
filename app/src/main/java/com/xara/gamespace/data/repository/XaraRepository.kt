@@ -86,6 +86,9 @@ class XaraRepository(
     suspend fun setNotificationsEnabled(enabled: Boolean) = preferences.setNotificationsEnabled(enabled)
     suspend fun setAutoCleanupOnBoost(enabled: Boolean) = preferences.setAutoCleanupOnBoost(enabled)
     suspend fun setActiveGameDetection(enabled: Boolean) = preferences.setActiveGameDetection(enabled)
+    suspend fun setAutoFloatingOnGameLaunch(enabled: Boolean) = preferences.setAutoFloatingOnGameLaunch(enabled)
+    suspend fun setFloatingSideRight(rightSide: Boolean) = preferences.setFloatingSideRight(rightSide)
+    suspend fun setFloatingMiniHudEnabled(enabled: Boolean) = preferences.setFloatingMiniHudEnabled(enabled)
     suspend fun setFloatingTransparentMode(transparent: Boolean) = preferences.setFloatingTransparentMode(transparent)
     suspend fun setFloatingPositionPreset(preset: FloatingPositionPreset) = preferences.setFloatingPositionPreset(preset)
     suspend fun setGraphicsSettings(

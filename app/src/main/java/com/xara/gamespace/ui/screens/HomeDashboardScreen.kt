@@ -53,6 +53,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -226,8 +227,10 @@ fun HomeDashboardScreen(
                                     text = "${telemetry.refreshRateHz.toInt()} Hz • ${telemetry.socHardware}",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = XaraTextSecondary,
+                                    textAlign = TextAlign.Center,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.width(136.dp)
                                 )
                             }
 
@@ -501,9 +504,9 @@ private fun QuickToolChip(
             Spacer(Modifier.width(10.dp))
             Text(
                 text = label,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 color = XaraTextPrimary,
-                maxLines = 1,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
         }

@@ -32,42 +32,51 @@ val XaraTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = OrbitronFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 36.sp,
-        lineHeight = 42.sp,
-        letterSpacing = 1.2.sp
+        fontSize = 34.sp,
+        lineHeight = 40.sp,
+        letterSpacing = 0.8.sp
     ),
     displayMedium = TextStyle(
         fontFamily = OrbitronFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 28.sp,
-        lineHeight = 34.sp,
-        letterSpacing = 1.sp
+        fontSize = 26.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.6.sp
     ),
     headlineLarge = TextStyle(
         fontFamily = OrbitronFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.8.sp
+        fontSize = 21.sp,
+        lineHeight = 27.sp,
+        letterSpacing = 0.5.sp
     ),
     headlineMedium = TextStyle(
         fontFamily = OrbitronFontFamily,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.6.sp
+        fontSize = 17.sp,
+        lineHeight = 23.sp,
+        letterSpacing = 0.4.sp
     ),
     titleLarge = TextStyle(
         fontFamily = SpaceGroteskFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 18.sp,
-        lineHeight = 24.sp
+        lineHeight = 24.sp,
+        letterSpacing = 0.1.sp
     ),
     titleMedium = TextStyle(
         fontFamily = SpaceGroteskFontFamily,
         fontWeight = FontWeight.SemiBold,
         fontSize = 15.sp,
-        lineHeight = 20.sp
+        lineHeight = 21.sp,
+        letterSpacing = 0.1.sp
+    ),
+    titleSmall = TextStyle(
+        fontFamily = SpaceGroteskFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        letterSpacing = 0.15.sp
     ),
     bodyLarge = TextStyle(
         fontFamily = SpaceGroteskFontFamily,
@@ -82,22 +91,23 @@ val XaraTypography = Typography(
         lineHeight = 19.sp
     ),
     labelLarge = TextStyle(
-        fontFamily = OrbitronFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 12.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.9.sp
+        fontFamily = SpaceGroteskFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 13.sp,
+        lineHeight = 17.sp,
+        letterSpacing = 0.4.sp
     ),
     labelMedium = TextStyle(
         fontFamily = JetBrainsMonoFontFamily,
         fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
-        lineHeight = 15.sp
+        fontSize = 12.sp,
+        lineHeight = 16.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = JetBrainsMonoFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 10.sp,
-        lineHeight = 14.sp
+        fontFamily = SpaceGroteskFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 15.sp,
+        letterSpacing = 0.2.sp
     )
 )

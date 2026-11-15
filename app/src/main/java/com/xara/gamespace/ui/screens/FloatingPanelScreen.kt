@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.OpenInNew
@@ -22,6 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -39,7 +41,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.xara.gamespace.domain.model.FloatingPositionPreset
 import com.xara.gamespace.permissions.PermissionHelper
 import com.xara.gamespace.ui.XaraMainViewModel
 import com.xara.gamespace.ui.components.StatusPillBadge
@@ -61,11 +62,13 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
     val xaraColors = LocalXaraColors.current
 
     var hasOverlayPerm by remember { mutableStateOf(PermissionHelper.canDrawOverlays(context)) }
+    var hasUsageAccess by remember { mutableStateOf(PermissionHelper.hasUsageStatsPermission(context)) }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 hasOverlayPerm = PermissionHelper.canDrawOverlays(context)
+                hasUsageAccess = PermissionHelper.hasUsageStatsPermission(context)
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -73,7 +76,11 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        XaraTopBar(title = "Floating Game Panel", subtitle = "Draggable in-game HUD overlay", onBack = onBack)
+        XaraTopBar(
+            title = "Floating Game Panel",
+            subtitle = "Panel sisi kanan dengan tombol stik gamepad",
+            onBack = onBack
+        )
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
@@ -87,11 +94,12 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Overlay Permission", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
-                            Text("Required to display XARA HUD over games", style = MaterialTheme.typography.labelSmall, color = XaraTextSecondary)
+                            Text("Izin Overlay (Tampil di Atas Aplikasi)", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
+                            Text("Wajib aktif agar tombol stik & panel tampil saat bermain game", style = MaterialTheme.typography.bodyMedium, color = XaraTextSecondary)
                         }
+                        Spacer(Modifier.width(8.dp))
                         StatusPillBadge(
-                            text = if (hasOverlayPerm) "GRANTED" else "REQUIRED",
+                            text = if (hasOverlayPerm) "AKTIF" else "PERLU IZIN",
                             color = if (hasOverlayPerm) xaraColors.thermalCool else xaraColors.thermalHot
                         )
                     }
@@ -105,7 +113,7 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
                         ) {
                             Icon(Icons.Filled.OpenInNew, contentDescription = "Grant Overlay Permission")
                             Spacer(Modifier.width(8.dp))
-                            Text("GRANT OVERLAY PERMISSION", style = MaterialTheme.typography.labelLarge)
+                            Text("Izinkan Tampil di Atas Aplikasi", style = MaterialTheme.typography.labelLarge)
                         }
                     } else {
                         Button(
@@ -121,11 +129,11 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
                         ) {
                             Icon(
                                 imageVector = if (isRunning) Icons.Filled.Close else Icons.Filled.Layers,
-                                contentDescription = if (isRunning) "Stop Floating Panel" else "Launch Floating Panel"
+                                contentDescription = if (isRunning) "Tutup Floating Panel" else "Buka Floating Panel"
                             )
                             Spacer(Modifier.width(8.dp))
                             Text(
-                                text = if (isRunning) "CLOSE FLOATING PANEL" else "LAUNCH FLOATING PANEL",
+                                text = if (isRunning) "Tutup Floating Panel" else "Aktifkan Floating Panel Sekarang",
                                 style = MaterialTheme.typography.labelLarge
                             )
                         }
@@ -135,7 +143,10 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
 
             item {
                 XaraGlassCard {
-                    XaraSectionHeader(title = "Panel Customization")
+                    XaraSectionHeader(
+                        title = "Otomatis Saat Buka Game",
+                        subtitle = "Munculkan tombol stik & panel secara otomatis"
+                    )
                     Spacer(Modifier.height(10.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -143,8 +154,92 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Transparent Mode", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
-                            Text("Lowers overlay opacity to keep game HUD visible", style = MaterialTheme.typography.labelSmall, color = XaraTextSecondary)
+                            Text("Auto-Open Floating Panel", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
+                            Text(
+                                "Otomatis aktif saat game dibuka dari XARAGameSpace atau beranda HP",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = XaraTextSecondary
+                            )
+                        }
+                        Switch(
+                            checked = settings.autoFloatingPanelOnGameLaunch,
+                            onCheckedChange = { viewModel.setAutoFloatingOnGameLaunch(it) },
+                            colors = SwitchDefaults.colors(checkedThumbColor = xaraColors.accentPrimary)
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Izin Usage Access (Deteksi Game Luar)", style = MaterialTheme.typography.bodyMedium, color = XaraTextSecondary)
+                        StatusPillBadge(
+                            text = if (hasUsageAccess) "SIAP" else "OPSIONAL",
+                            color = if (hasUsageAccess) xaraColors.thermalCool else xaraColors.thermalWarm
+                        )
+                    }
+                    Spacer(Modifier.height(10.dp))
+                    OutlinedButton(
+                        onClick = { viewModel.startBackgroundGameWatcher() },
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(Icons.Filled.AutoAwesome, contentDescription = "Aktifkan Auto Watcher")
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            if (hasUsageAccess) "Aktifkan Background Game Watcher" else "Berikan Izin Usage Access",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
+            }
+
+            item {
+                XaraGlassCard {
+                    XaraSectionHeader(title = "Tampilan & Posisi Panel")
+                    Spacer(Modifier.height(10.dp))
+                    Text("Posisi Dock Panel & Tombol Stik", style = MaterialTheme.typography.titleSmall, color = XaraTextSecondary)
+                    Spacer(Modifier.height(6.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = settings.floatingSideRight,
+                            onClick = { viewModel.updateFloatingSideRight(true) },
+                            label = { Text("Sisi Kanan (Rekomendasi)") }
+                        )
+                        FilterChip(
+                            selected = !settings.floatingSideRight,
+                            onClick = { viewModel.updateFloatingSideRight(false) },
+                            label = { Text("Sisi Kiri") }
+                        )
+                    }
+
+                    Spacer(Modifier.height(10.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Mini Telemetry Bar Atas", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
+                            Text("Tampilkan FPS, CPU & Suhu ringkas di atas layar", style = MaterialTheme.typography.bodyMedium, color = XaraTextSecondary)
+                        }
+                        Switch(
+                            checked = settings.floatingMiniHudEnabled,
+                            onCheckedChange = { viewModel.updateFloatingMiniHud(it) },
+                            colors = SwitchDefaults.colors(checkedThumbColor = xaraColors.accentPrimary)
+                        )
+                    }
+
+                    Spacer(Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Mode Transparan", style = MaterialTheme.typography.titleMedium, color = XaraTextPrimary)
+                            Text("Membuat panel lebih tembus pandang saat dibuka", style = MaterialTheme.typography.bodyMedium, color = XaraTextSecondary)
                         }
                         Switch(
                             checked = settings.floatingTransparentMode,
@@ -152,38 +247,29 @@ fun FloatingPanelScreen(viewModel: XaraMainViewModel, onBack: () -> Unit) {
                             colors = SwitchDefaults.colors(checkedThumbColor = xaraColors.accentPrimary)
                         )
                     }
-
-                    Spacer(Modifier.height(12.dp))
-                    Text("Initial Position Preset", style = MaterialTheme.typography.labelLarge, color = XaraTextSecondary)
-                    Spacer(Modifier.height(6.dp))
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FloatingPositionPreset.entries.forEach { preset ->
-                            FilterChip(
-                                selected = settings.floatingPositionPreset == preset,
-                                onClick = { viewModel.updateFloatingPreset(preset) },
-                                label = { Text(preset.displayName) }
-                            )
-                        }
-                    }
                 }
             }
 
             item {
                 XaraGlassCard {
-                    XaraSectionHeader(title = "Included Floating HUD Modules")
+                    XaraSectionHeader(title = "Menu di Dalam Floating Panel")
                     Spacer(Modifier.height(8.dp))
                     val items = listOf(
-                        "XARA BOOST (One-tap background cleanup)",
-                        "RAM Monitor (Live MB & percentage)",
-                        "CPU Monitor (Real load or N/A)",
-                        "FPS & Refresh Rate Monitor",
-                        "Battery Temperature (°C)",
-                        "Ping Monitor (Live RTT latency)",
-                        "Graphics, Sensitivity & Macro Shortcuts",
-                        "Draggable Orb, Expand/Minimize & Close Panel"
+                        "Monitor — Live FPS/Hz, CPU, RAM, Suhu Baterai & Ping",
+                        "Boost — Pembersihan RAM latar cepat tanpa menutup game",
+                        "Sensi — Kalibrasi X/Y, lock skala & pilihan area sentuh",
+                        "Crosshair — Overlay bidik Titik / Plus / T dengan warna & ukuran",
+                        "Macro — Pengaturan trigger size, interval & lama tekan",
+                        "Burik — Profil tekstur Off, Soft, Pixel & Balanced",
+                        "Kontrol — Volume, layar tetap menyala, pindah sisi & tutup sesi"
                     )
                     items.forEach { line ->
-                        Text("• $line", style = MaterialTheme.typography.bodyMedium, color = XaraTextPrimary)
+                        Text(
+                            text = "• $line",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = XaraTextPrimary
+                        )
+                        Spacer(Modifier.height(4.dp))
                     }
                 }
             }

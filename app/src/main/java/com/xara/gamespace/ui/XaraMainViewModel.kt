@@ -216,6 +216,11 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
                         notificationsEnabled = settings.notificationsEnabled
                     )
                 }
+                if (settings.autoFloatingPanelOnGameLaunch &&
+                    PermissionHelper.canDrawOverlays(getApplication())
+                ) {
+                    startFloatingPanel(activeGameName = item.appName)
+                }
             } else {
                 _statusBanner.value = "Unable to launch ${item.appName}"
             }
@@ -377,7 +382,7 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
         _statusBanner.value = sessionManager.restoreTemporarySettings()
     }
 
-    fun startFloatingPanel(): Boolean {
+    fun startFloatingPanel(activeGameName: String? = null): Boolean {
         val ctx = getApplication<Application>()
         if (!PermissionHelper.canDrawOverlays(ctx)) {
             PermissionHelper.openOverlaySettings(ctx)
@@ -386,7 +391,11 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
         val settings = userSettings.value
         val intent = Intent(ctx, FloatingPanelService::class.java).apply {
             putExtra(FloatingPanelService.EXTRA_TRANSPARENT, settings.floatingTransparentMode)
-            putExtra(FloatingPanelService.EXTRA_POSITION_PRESET, settings.floatingPositionPreset.name)
+            putExtra(FloatingPanelService.EXTRA_SIDE_RIGHT, settings.floatingSideRight)
+            putExtra(FloatingPanelService.EXTRA_MINI_HUD, settings.floatingMiniHudEnabled)
+            if (activeGameName != null) {
+                putExtra(FloatingPanelService.EXTRA_GAME_NAME, activeGameName)
+            }
         }
         ctx.startForegroundService(intent)
         return true
@@ -395,6 +404,28 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
     fun stopFloatingPanel() {
         val ctx = getApplication<Application>()
         ctx.stopService(Intent(ctx, FloatingPanelService::class.java))
+    }
+
+    fun startBackgroundGameWatcher() {
+        val ctx = getApplication<Application>()
+        if (!PermissionHelper.canDrawOverlays(ctx)) {
+            PermissionHelper.openOverlaySettings(ctx)
+            return
+        }
+        if (!PermissionHelper.hasUsageStatsPermission(ctx)) {
+            PermissionHelper.openUsageAccessSettings(ctx)
+            return
+        }
+        val intent = Intent(ctx, com.xara.gamespace.services.SessionForegroundService::class.java).apply {
+            putExtra(com.xara.gamespace.services.SessionForegroundService.EXTRA_WATCH_GAMES, true)
+        }
+        ctx.startForegroundService(intent)
+        _statusBanner.value = "Auto-Open Floating Panel watcher active"
+    }
+
+    fun stopBackgroundGameWatcher() {
+        val ctx = getApplication<Application>()
+        ctx.stopService(Intent(ctx, com.xara.gamespace.services.SessionForegroundService::class.java))
     }
 
     fun updateFloatingTransparency(transparent: Boolean) {
@@ -410,13 +441,41 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun updateFloatingPreset(preset: FloatingPositionPreset) {
+    fun updateFloatingSideRight(rightSide: Boolean) {
         viewModelScope.launch {
-            repository.setFloatingPositionPreset(preset)
+            repository.setFloatingSideRight(rightSide)
             if (isFloatingPanelRunning.value) {
                 val ctx = getApplication<Application>()
                 val intent = Intent(ctx, FloatingPanelService::class.java).apply {
-                    putExtra(FloatingPanelService.EXTRA_POSITION_PRESET, preset.name)
+                    putExtra(FloatingPanelService.EXTRA_SIDE_RIGHT, rightSide)
+                }
+                ctx.startService(intent)
+            }
+        }
+    }
+
+    fun updateFloatingMiniHud(enabled: Boolean) {
+        viewModelScope.launch {
+            repository.setFloatingMiniHudEnabled(enabled)
+            if (isFloatingPanelRunning.value) {
+                val ctx = getApplication<Application>()
+                val intent = Intent(ctx, FloatingPanelService::class.java).apply {
+                    putExtra(FloatingPanelService.EXTRA_MINI_HUD, enabled)
+                }
+                ctx.startService(intent)
+            }
+        }
+    }
+
+    fun updateFloatingPreset(preset: FloatingPositionPreset) {
+        viewModelScope.launch {
+            repository.setFloatingPositionPreset(preset)
+            val isRight = preset != FloatingPositionPreset.TOP_LEFT && preset != FloatingPositionPreset.CENTER_LEFT
+            repository.setFloatingSideRight(isRight)
+            if (isFloatingPanelRunning.value) {
+                val ctx = getApplication<Application>()
+                val intent = Intent(ctx, FloatingPanelService::class.java).apply {
+                    putExtra(FloatingPanelService.EXTRA_SIDE_RIGHT, isRight)
                 }
                 ctx.startService(intent)
             }
@@ -440,6 +499,7 @@ class XaraMainViewModel(application: Application) : AndroidViewModel(application
     fun setNotificationsEnabled(enabled: Boolean) = viewModelScope.launch { repository.setNotificationsEnabled(enabled) }
     fun setAutoCleanupOnBoost(enabled: Boolean) = viewModelScope.launch { repository.setAutoCleanupOnBoost(enabled) }
     fun setActiveGameDetection(enabled: Boolean) = viewModelScope.launch { repository.setActiveGameDetection(enabled) }
+    fun setAutoFloatingOnGameLaunch(enabled: Boolean) = viewModelScope.launch { repository.setAutoFloatingOnGameLaunch(enabled) }
 
     fun resetAllSettings() {
         viewModelScope.launch {
